@@ -21,6 +21,10 @@ export class LoginDto {
   password!: string;
 }
 
+export class RefreshDto {
+  refreshToken!: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -41,6 +45,24 @@ export class AuthController {
     }
 
     return this.authService.login(dto.email, dto.password);
+  }
+
+  @Post('refresh')
+  async refresh(@Body() dto: RefreshDto) {
+    if (!dto.refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+
+    return this.authService.refresh(dto.refreshToken);
+  }
+
+  @Post('logout')
+  async logout(@Body() dto: RefreshDto) {
+    if (!dto.refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+
+    return this.authService.logout(dto.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService, JwtPayload } from './auth.service';
@@ -14,9 +14,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
+    if (!payload.sid) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const sessionIsValid = await this.authService.verifySession(payload.sid);
+    if (!sessionIsValid) {
+      throw new UnauthorizedException('Session expired or invalid');
+    }
+
     const user = await this.authService.validateUser(payload.sub);
     if (!user) {
-      throw new Error('User not found');
+      throw new UnauthorizedException('User not found');
     }
     return user;
   }
