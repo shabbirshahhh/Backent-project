@@ -5,16 +5,19 @@ This backend project includes a production-ready JWT authentication system with 
 ## Features
 
 ✅ **Secure Password Hashing**
+
 - Uses bcrypt with 12 salt rounds (industry standard)
 - Passwords are never stored in plain text
 
 ✅ **JWT Token Management**
+
 - Access tokens expire after 24 hours
 - Refresh tokens expire after 7 days
 - HS256 algorithm for token signing
 - Tokens include user ID and email in payload
 
 ✅ **Password Strength Validation**
+
 - Minimum 8 characters
 - Must include uppercase letters
 - Must include lowercase letters
@@ -22,11 +25,13 @@ This backend project includes a production-ready JWT authentication system with 
 - Must include special characters
 
 ✅ **Protected Routes**
+
 - JWT guard protects sensitive endpoints
 - Automatic token validation on protected routes
 - Current user decorator for easy access to auth context
 
 ✅ **Security Best Practices**
+
 - Unique email constraint in database
 - Conflict detection for duplicate registrations
 - Proper error messages (doesn't reveal if email exists)
@@ -49,6 +54,7 @@ PORT=3000
 ⚠️ **IMPORTANT**: Change `JWT_SECRET` to a strong random string in production. Minimum 32 characters recommended.
 
 Generate a secure JWT secret:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
@@ -58,6 +64,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### Authentication Routes
 
 #### Register New User
+
 ```
 POST /auth/register
 Content-Type: application/json
@@ -81,6 +88,7 @@ Response (201):
 ```
 
 #### Login
+
 ```
 POST /auth/login
 Content-Type: application/json
@@ -103,6 +111,7 @@ Response (200):
 ```
 
 #### Get Current User (Protected)
+
 ```
 GET /auth/me
 Authorization: Bearer {accessToken}
@@ -120,14 +129,14 @@ Response (200):
 ### Protect a Route
 
 ```typescript
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { CurrentUser } from './auth/current-user.decorator';
+import { Controller, Get, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "./auth/jwt-auth.guard";
+import { CurrentUser } from "./auth/current-user.decorator";
 
-@Controller('protected')
+@Controller("protected")
 export class ProtectedController {
   @UseGuards(JwtAuthGuard)
-  @Get('resource')
+  @Get("resource")
   getResource(@CurrentUser() user: any) {
     // user is automatically available from the JWT token
     return {
@@ -238,6 +247,7 @@ src/
 ## Database Schema
 
 The User entity includes:
+
 - `id`: Primary key (auto-increment)
 - `email`: Unique email address
 - `password`: Bcrypt hashed password
@@ -265,13 +275,13 @@ The User entity includes:
 
 ## Error Codes
 
-| Status | Error | Meaning |
-|--------|-------|---------|
-| 400 | BadRequestException | Missing required fields |
-| 409 | ConflictException | User email already exists |
-| 401 | UnauthorizedException | Invalid credentials or token |
-| 401 | UnauthorizedException | Weak password |
-| 401 | Unauthorized | Token expired or invalid |
+| Status | Error                 | Meaning                      |
+| ------ | --------------------- | ---------------------------- |
+| 400    | BadRequestException   | Missing required fields      |
+| 409    | ConflictException     | User email already exists    |
+| 401    | UnauthorizedException | Invalid credentials or token |
+| 401    | UnauthorizedException | Weak password                |
+| 401    | Unauthorized          | Token expired or invalid     |
 
 ---
 
