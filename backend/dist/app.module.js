@@ -14,6 +14,7 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const user_module_1 = require("./user/user.module");
 const user_entity_1 = require("./user/user.entity");
+const employees_entity_1 = require("./employees/employees.entity");
 const employees_module_1 = require("./employees/employees.module");
 let AppModule = class AppModule {
 };
@@ -27,8 +28,10 @@ exports.AppModule = AppModule = __decorate([
                     type: 'postgres',
                     url: process.env.DATABASE_URL ?? '',
                     autoLoadEntities: true,
-                    synchronize: true,
-                    entities: [user_entity_1.User],
+                    synchronize: false,
+                    migrations: ['dist/database/migrations/*.js'],
+                    migrationsRun: process.env.NODE_ENV === 'production',
+                    entities: [user_entity_1.User, employees_entity_1.Employee],
                 }),
             }),
             user_module_1.UserModule,

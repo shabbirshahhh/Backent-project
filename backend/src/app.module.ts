@@ -16,11 +16,16 @@ import { EmployeesModule } from './employees/employees.module';
         type: 'postgres',
         url: process.env.DATABASE_URL ?? '',
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
+        migrations: ['dist/database/migrations/*.js'],
+        migrationsRun: process.env.NODE_ENV === 'production',
         entities: [User, Employee],
       }),
     }),
     UserModule,
     EmployeesModule,
   ],
-  controllers: [AppCo
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
