@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { Employee } from './employees/employees.entity';
 import { EmployeesModule } from './employees/employees.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { EmployeesModule } from './employees/employees.module';
     }),
     UserModule,
     EmployeesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
