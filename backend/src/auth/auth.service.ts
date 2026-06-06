@@ -6,6 +6,7 @@ import { User } from '../user/user.entity';
 import * as bcrypt from 'bcrypt';
 import { RedisService } from '../redis/redis.service';
 import { randomUUID } from 'crypto';
+import { getJwtSecret } from './jwt-secret';
 
 export interface JwtPayload {
   sub: number;
@@ -25,7 +26,7 @@ interface SessionRecord {
 @Injectable()
 export class AuthService {
   private readonly SALT_ROUNDS = 12;
-  private readonly ACCESS_TOKEN_EXPIRY = '24h';
+  private readonly ACCESS_TOKEN_EXPIRY = '15m';
   private readonly REFRESH_TOKEN_EXPIRY = '7d';
   private readonly SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
@@ -37,9 +38,11 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string, name: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Check if user already exists
     const existingUser = await this.usersRepository.findOne({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -54,9 +57,9 @@ export class AuthService {
 
     // Create new user
     const user = this.usersRepository.create({
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
-      name,
+      name: name.trim(),
     });
 
     const savedUser = await this.usersRepository.save(user);
@@ -74,9 +77,11 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Find user by email
     const user = await this.usersRepository.findOne({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (!user) {
@@ -108,7 +113,7 @@ export class AuthService {
 
     try {
       payload = this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+        secret: getJwtSecret(),
       });
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
@@ -125,6 +130,7 @@ export class AuthService {
 
     const tokenMatches = await bcrypt.compare(refreshToken, session.refreshTokenHash);
     if (!tokenMatches) {
+      await this.redisService.deleteSession(payload.sid);
       throw new UnauthorizedException('Invalid refresh token');
     }
 
@@ -150,7 +156,7 @@ export class AuthService {
 
     try {
       payload = this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+        secret: getJwtSecret(),
         ignoreExpiration: true,
       });
     } catch {

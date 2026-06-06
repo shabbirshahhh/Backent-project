@@ -7,7 +7,12 @@ export class InitSchema1749132000000 implements MigrationInterface {
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "user" (
         "id" SERIAL NOT NULL,
+        "email" character varying NOT NULL,
+        "password" character varying NOT NULL,
         "name" character varying NOT NULL,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+        CONSTRAINT "UQ_user_email" UNIQUE ("email"),
         CONSTRAINT "PK_user_id" PRIMARY KEY ("id")
       )
     `);

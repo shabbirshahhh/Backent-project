@@ -8,6 +8,8 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { RedisModule } from '../redis/redis.module';
+import { getJwtSecret } from './jwt-secret';
+import { AuthRateLimitGuard } from './auth-rate-limit.guard';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { RedisModule } from '../redis/redis.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'your-secret-key-change-in-production',
+        secret: getJwtSecret(),
         signOptions: {
           expiresIn: '24h',
           algorithm: 'HS256',
@@ -27,7 +29,7 @@ import { RedisModule } from '../redis/redis.module';
     }),
     RedisModule,
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, AuthRateLimitGuard],
   controllers: [AuthController],
   exports: [AuthService],
 })

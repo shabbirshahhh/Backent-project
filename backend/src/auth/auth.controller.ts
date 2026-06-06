@@ -9,19 +9,31 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
+import { IsEmail, IsString, MinLength } from 'class-validator';
+import { AuthRateLimitGuard } from './auth-rate-limit.guard';
 
 export class RegisterDto {
+  @IsEmail()
   email!: string;
+
+  @IsString()
+  @MinLength(8)
   password!: string;
+
+  @IsString()
   name!: string;
 }
 
 export class LoginDto {
+  @IsEmail()
   email!: string;
+
+  @IsString()
   password!: string;
 }
 
 export class RefreshDto {
+  @IsString()
   refreshToken!: string;
 }
 
@@ -29,6 +41,7 @@ export class RefreshDto {
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseGuards(AuthRateLimitGuard)
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     if (!dto.email || !dto.password || !dto.name) {
@@ -38,6 +51,7 @@ export class AuthController {
     return this.authService.register(dto.email, dto.password, dto.name);
   }
 
+  @UseGuards(AuthRateLimitGuard)
   @Post('login')
   async login(@Body() dto: LoginDto) {
     if (!dto.email || !dto.password) {
@@ -47,6 +61,7 @@ export class AuthController {
     return this.authService.login(dto.email, dto.password);
   }
 
+  @UseGuards(AuthRateLimitGuard)
   @Post('refresh')
   async refresh(@Body() dto: RefreshDto) {
     if (!dto.refreshToken) {

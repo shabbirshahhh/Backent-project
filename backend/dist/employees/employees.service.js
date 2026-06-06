@@ -21,8 +21,20 @@ let EmployeesService = class EmployeesService {
     constructor(employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
-    async findAll() {
-        return this.employeeRepository.find();
+    async findAll(page = 1, limit = 20) {
+        const safePage = Math.max(1, page);
+        const safeLimit = Math.min(Math.max(1, limit), 100);
+        const [data, total] = await this.employeeRepository.findAndCount({
+            skip: (safePage - 1) * safeLimit,
+            take: safeLimit,
+            order: { id: 'ASC' },
+        });
+        return {
+            data,
+            page: safePage,
+            limit: safeLimit,
+            total,
+        };
     }
     async findOne(id) {
         const employee = await this.employeeRepository.findOne({ where: { id } });
@@ -32,12 +44,20 @@ let EmployeesService = class EmployeesService {
         return employee;
     }
     async create(employeeData) {
-        const newEmployee = this.employeeRepository.create(employeeData);
+        const newEmployee = this.employeeRepository.create({
+            name: employeeData.name.trim(),
+            position: employeeData.position.trim(),
+        });
         return this.employeeRepository.save(newEmployee);
     }
     async update(id, employeeData) {
         const employee = await this.findOne(id);
-        Object.assign(employee, employeeData);
+        if (employeeData.name !== undefined) {
+            employee.name = employeeData.name.trim();
+        }
+        if (employeeData.position !== undefined) {
+            employee.position = employeeData.position.trim();
+        }
         return this.employeeRepository.save(employee);
     }
 };
