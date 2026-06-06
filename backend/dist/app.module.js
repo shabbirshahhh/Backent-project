@@ -17,6 +17,7 @@ const user_entity_1 = require("./user/user.entity");
 const employees_entity_1 = require("./employees/employees.entity");
 const employees_module_1 = require("./employees/employees.module");
 const auth_module_1 = require("./auth/auth.module");
+const db_pool_config_1 = require("./database/db-pool.config");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -33,6 +34,7 @@ exports.AppModule = AppModule = __decorate([
                     migrations: ['dist/database/migrations/*.js'],
                     migrationsRun: process.env.NODE_ENV === 'production',
                     entities: [user_entity_1.User, employees_entity_1.Employee],
+                    extra: (0, db_pool_config_1.getDbPoolConfig)(),
                 }),
             }),
             user_module_1.UserModule,

@@ -3,6 +3,7 @@ import { DataSource, type DataSourceOptions } from 'typeorm';
 import type { SeederOptions } from 'typeorm-extension';
 import { User } from '../user/user.entity';
 import { Employee } from '../employees/employees.entity';
+import { getDbPoolConfig } from './db-pool.config';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const rootDir = isProduction ? 'dist' : 'src';
@@ -15,6 +16,7 @@ export const seedDataSourceOptions: DataSourceOptions & SeederOptions = {
   synchronize: false,
   seeds: [`${rootDir}/database/seeds/**/*.seeder.${fileExt}`],
   factories: [`${rootDir}/database/factories/**/*.factory.${fileExt}`],
+  extra: getDbPoolConfig(),
 };
 
 const seedDataSource = new DataSource(seedDataSourceOptions);

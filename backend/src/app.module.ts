@@ -8,6 +8,7 @@ import { User } from './user/user.entity';
 import { Employee } from './employees/employees.entity';
 import { EmployeesModule } from './employees/employees.module';
 import { AuthModule } from './auth/auth.module';
+import { getDbPoolConfig } from './database/db-pool.config';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
         migrations: ['dist/database/migrations/*.js'],
         migrationsRun: process.env.NODE_ENV === 'production',
         entities: [User, Employee],
+        extra: getDbPoolConfig(),
       }),
     }),
     UserModule,
