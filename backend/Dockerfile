@@ -15,7 +15,7 @@ RUN npm run build
 
 FROM base AS production
 ENV NODE_ENV=production
-RUN npm ci --omit=dev
+RUN npm install --production --silent --no-audit --no-fund
 COPY --from=builder /app/dist ./dist
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
